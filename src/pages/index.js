@@ -60,7 +60,7 @@ export async function getStaticProps() {
   return{
     props: {
       blogs: response.results,
-    }
-
-  }
+    },
+    revalidate: 10,
+  };
 }
