@@ -1,8 +1,10 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import { Client } from '@notionhq/client';
 
-export default function Home() {
+
+export default function Home({blogs}) {
   return (
     <div className={styles.container}>
       <Head>
@@ -22,33 +24,13 @@ export default function Home() {
         </p>
 
         <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
+          {blogs.map(blog => (
+            <a key={blog.id}href="https://nextjs.org/docs" className={styles.card}>
+            <h2>{blog.properties.Name.title[0].plain_text} &rarr;</h2>
+            <p>{blog.properties.Description.rich_text[0].plain_text}</p>
+            <h5>{blog.properties.Created.rich_text[0].plain_text}</h5>
           </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+          ))}
         </div>
       </main>
 
@@ -66,4 +48,19 @@ export default function Home() {
       </footer>
     </div>
   )
+}
+
+export async function getStaticProps() {
+  const notion = new Client({ auth: process.env.NOTION_API_KEY });
+  const response = await notion.databases.query({
+    database_id: process.env.NOTION_DATABASE_ID,
+     
+  });
+
+  return{
+    props: {
+      blogs: response.results,
+    }
+
+  }
 }
